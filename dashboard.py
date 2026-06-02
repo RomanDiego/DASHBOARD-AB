@@ -1201,31 +1201,31 @@ else:
         # RESUMEN
         # =========================
 
-        total_vendido = producto[
+    total_vendido = producto[
             "CANTIDAD VENDIDA"
         ].sum()
 
-        ultimo_mes = (
+    ultimo_mes = (
             producto["Fecha Salida"]
             .max()
         )
 
-        ult_3m = producto[
+    ult_3m = producto[
             producto["Fecha Salida"] >=
             (ultimo_mes - pd.DateOffset(months=3))
         ]["CANTIDAD VENDIDA"].sum()
 
-        ult_6m = producto[
+    ult_6m = producto[
             producto["Fecha Salida"] >=
             (ultimo_mes - pd.DateOffset(months=6))
         ]["CANTIDAD VENDIDA"].sum()
 
-        ult_12m = producto[
+    ult_12m = producto[
             producto["Fecha Salida"] >=
             (ultimo_mes - pd.DateOffset(months=12))
         ]["CANTIDAD VENDIDA"].sum()
 
-        promedio_mensual = (
+    promedio_mensual = (
             producto
             .groupby(
                 producto["Fecha Salida"]
@@ -1264,13 +1264,13 @@ else:
 
         st.markdown("---")
 
-        # =========================
-        # VENTAS POR AÑO
-        # =========================
+    # =========================
+    # VENTAS POR AÑO
+    # =========================
 
-        st.subheader("📊 Ventas por Año")
+    st.subheader("📊 Ventas por Año")
 
-        ventas_anuales = (
+    ventas_anuales = (
             producto
             .groupby(
                 producto["Fecha Salida"].dt.year
@@ -1279,7 +1279,7 @@ else:
             .reset_index()
         )
 
-        ventas_anuales.columns = [
+    ventas_anuales.columns = [
             "Año",
             "Cantidad"
         ]
@@ -1296,32 +1296,32 @@ else:
             text="Cantidad"
         )
 
-        st.plotly_chart(
+    st.plotly_chart(
             fig,
             use_container_width=True
         )
 
-        st.markdown("---")
+    st.markdown("---")
 
         # =========================
         # TABLA MENSUAL
         # =========================
 
-        st.subheader(
+    st.subheader(
             "📅 Comportamiento Mensual"
         )
 
-        producto["Año"] = (
+    producto["Año"] = (
             producto["Fecha Salida"]
             .dt.year
         )
 
-        producto["Mes"] = (
+    producto["Mes"] = (
             producto["Fecha Salida"]
             .dt.month_name()
         )
 
-        tabla = pd.pivot_table(
+    tabla = pd.pivot_table(
             producto,
             values="CANTIDAD VENDIDA",
             index="Año",
@@ -1330,7 +1330,7 @@ else:
             fill_value=0
         )
 
-        orden = [
+    orden = [
             "January",
             "February",
             "March",
@@ -1345,31 +1345,31 @@ else:
             "December"
         ]
 
-        columnas_existentes = [
+    columnas_existentes = [
             c for c in orden
             if c in tabla.columns
         ]
 
-        tabla = tabla[
+    tabla = tabla[
             columnas_existentes
         ]
 
-        st.dataframe(
+    st.dataframe(
             tabla,
             use_container_width=True
         )
 
-        st.markdown("---")
+    st.markdown("---")
 
-        # =========================
-        # TENDENCIA MENSUAL
-        # =========================
+    # =========================
+    # TENDENCIA MENSUAL
+    # =========================
 
-        st.subheader(
+    st.subheader(
             "📈 Tendencia Mensual"
         )
 
-        tendencia = (
+    tendencia = (
             producto
             .groupby(
                 producto["Fecha Salida"]
@@ -1379,26 +1379,26 @@ else:
             .reset_index()
         )
 
-        tendencia["Fecha"] = (
+    tendencia["Fecha"] = (
             tendencia["Fecha Salida"]
             .astype(str)
         )
 
-        fig = px.line(
+    fig = px.line(
             tendencia,
             x="Fecha",
             y="CANTIDAD VENDIDA",
             markers=True
         )
 
-        fig.update_traces(
+    fig.update_traces(
             text=tendencia[
                 "CANTIDAD VENDIDA"
             ],
             textposition="top center"
         )
 
-        st.plotly_chart(
+    st.plotly_chart(
             fig,
             use_container_width=True
         )
