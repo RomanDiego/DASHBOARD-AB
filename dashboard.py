@@ -653,7 +653,7 @@ if menu == "Planeamiento":
     ventas = ventas[
         ventas["CLASIFICACION"].isin(["A", "B"])
     ]
-        total_a = ventas[
+    total_a = ventas[
         ventas["CLASIFICACION"] == "A"
     ]["CANTIDAD VENDIDA"].sum()
 
