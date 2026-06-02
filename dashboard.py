@@ -1237,27 +1237,27 @@ else:
 
     c1,c2,c3,c4,c5 = st.columns(5)
 
-        c1.metric(
+    c1.metric(
             "Venta Total",
             f"{total_vendido:,.0f}"
         )
 
-        c2.metric(
+    c2.metric(
             "Promedio Mensual",
             f"{promedio_mensual:,.0f}"
         )
 
-        c3.metric(
+    c3.metric(
             "Últimos 3 Meses",
             f"{ult_3m:,.0f}"
         )
 
-        c4.metric(
+    c4.metric(
             "Últimos 6 Meses",
             f"{ult_6m:,.0f}"
         )
 
-        c5.metric(
+    c5.metric(
             "Últimos 12 Meses",
             f"{ult_12m:,.0f}"
         )
