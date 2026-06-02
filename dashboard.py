@@ -53,7 +53,7 @@ menu = st.sidebar.radio(
         "ABC",
         "Producto",
         "Pronóstico",
-        "Dashboard Gerencial"
+        "Dashboard Gerencial",
         "Planeamiento"
     ]
 )
