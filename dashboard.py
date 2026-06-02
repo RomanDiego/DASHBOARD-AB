@@ -29,7 +29,15 @@ def cargar_datos():
     return df
 
 df = cargar_datos()
+# ==========================================
+# TITULO PRINCIPAL
+# ==========================================
 
+st.title("📦 Dashboard Inventario AB")
+
+st.caption(
+    "Análisis de ventas, transferencias, clasificación ABC y pronósticos de demanda"
+)
 # ==========================================
 # MENÚ LATERAL
 # ==========================================
