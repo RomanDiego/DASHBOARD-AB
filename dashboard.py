@@ -54,7 +54,8 @@ menu = st.sidebar.radio(
         "Producto",
         "Pronóstico",
         "Dashboard Gerencial",
-        "Planeamiento"
+        "Planeamiento",
+        "Top Ventas Mensual"
     ]
 )
 
@@ -805,5 +806,265 @@ if menu == "Planeamiento":
 
     st.plotly_chart(
         fig,
+        use_container_width=True
+    )
+# ==========================================
+# TOP VENTAS MENSUAL
+# ==========================================
+
+if menu == "Top Ventas Mensual":
+
+    st.title("🏆 Top Ventas por Mes")
+
+    ventas = df[
+        df["NOMBRE DE TRANSACCION"]
+        == "SALIDA POR VENTAS"
+    ].copy()
+
+    # -----------------------
+    # Filtros
+    # -----------------------
+
+    años = sorted(
+        ventas["Fecha Salida"]
+        .dt.year
+        .dropna()
+        .unique()
+    )
+
+    año = st.selectbox(
+        "Seleccione Año",
+        años
+    )
+
+    meses = {
+        1:"Enero",
+        2:"Febrero",
+        3:"Marzo",
+        4:"Abril",
+        5:"Mayo",
+        6:"Junio",
+        7:"Julio",
+        8:"Agosto",
+        9:"Septiembre",
+        10:"Octubre",
+        11:"Noviembre",
+        12:"Diciembre"
+    }
+
+    mes_nombre = st.selectbox(
+        "Seleccione Mes",
+        list(meses.values())
+    )
+
+    mes_num = list(meses.keys())[
+        list(meses.values()).index(mes_nombre)
+    ]
+
+    clasificacion = st.selectbox(
+        "Clasificación",
+        ["TODAS","A","B","C"]
+    )
+
+    filtro = ventas[
+        (ventas["Fecha Salida"].dt.year == año)
+        &
+        (ventas["Fecha Salida"].dt.month == mes_num)
+    ]
+
+    if clasificacion != "TODAS":
+
+        filtro = filtro[
+            filtro["CLASIFICACION"]
+            == clasificacion
+        ]
+
+    # -----------------------
+    # KPIs
+    # -----------------------
+
+    c1,c2,c3 = st.columns(3)
+
+    c1.metric(
+        "Cantidad Vendida",
+        f"{filtro['CANTIDAD VENDIDA'].sum():,.0f}"
+    )
+
+    c2.metric(
+        "Productos",
+        filtro["Código Artículo"].nunique()
+    )
+
+    c3.metric(
+        "Registros",
+        len(filtro)
+    )
+
+    # -----------------------
+    # Top 10
+    # -----------------------
+
+    top10 = (
+        filtro
+        .groupby(
+            ["Código Artículo","Artículo"]
+        )["CANTIDAD VENDIDA"]
+        .sum()
+        .reset_index()
+        .sort_values(
+            "CANTIDAD VENDIDA",
+            ascending=False
+        )
+        .head(10)
+    )
+
+    st.subheader(
+        "🏆 Top 10 Productos"
+    )
+
+    st.dataframe(
+        top10,
+        use_container_width=True
+    )
+
+    fig = px.bar(
+        top10,
+        x="CANTIDAD VENDIDA",
+        y="Artículo",
+        orientation="h",
+        text="CANTIDAD VENDIDA"
+    )
+
+    fig.update_layout(
+        height=600
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+
+    # -----------------------
+    # Comparativo Año Anterior
+    # -----------------------
+
+    año_anterior = año - 1
+
+    actual = filtro[
+        "CANTIDAD VENDIDA"
+    ].sum()
+
+    anterior = ventas[
+        (ventas["Fecha Salida"].dt.year == año_anterior)
+        &
+        (ventas["Fecha Salida"].dt.month == mes_num)
+    ]
+
+    if clasificacion != "TODAS":
+
+        anterior = anterior[
+            anterior["CLASIFICACION"]
+            == clasificacion
+        ]
+
+    anterior_total = anterior[
+        "CANTIDAD VENDIDA"
+    ].sum()
+
+    if anterior_total > 0:
+
+        variacion = (
+            (
+                actual
+                -
+                anterior_total
+            )
+            /
+            anterior_total
+        ) * 100
+
+        st.subheader(
+            "📈 Comparativo Año Anterior"
+        )
+
+        c1,c2,c3 = st.columns(3)
+
+        c1.metric(
+            f"{año_anterior}",
+            f"{anterior_total:,.0f}"
+        )
+
+        c2.metric(
+            f"{año}",
+            f"{actual:,.0f}"
+        )
+
+        c3.metric(
+            "Variación %",
+            f"{variacion:,.2f}%"
+        )
+
+    # -----------------------
+    # Top Crecimiento
+    # -----------------------
+
+    st.subheader(
+        "🚀 Productos con Mayor Crecimiento"
+    )
+
+    actual_cod = (
+        filtro
+        .groupby("Código Artículo")
+        ["CANTIDAD VENDIDA"]
+        .sum()
+        .reset_index()
+        .rename(
+            columns={
+                "CANTIDAD VENDIDA":"Actual"
+            }
+        )
+    )
+
+    anterior_cod = (
+        anterior
+        .groupby("Código Artículo")
+        ["CANTIDAD VENDIDA"]
+        .sum()
+        .reset_index()
+        .rename(
+            columns={
+                "CANTIDAD VENDIDA":"Anterior"
+            }
+        )
+    )
+
+    crecimiento = pd.merge(
+        actual_cod,
+        anterior_cod,
+        on="Código Artículo",
+        how="inner"
+    )
+
+    crecimiento = crecimiento[
+        crecimiento["Anterior"] > 0
+    ]
+
+    crecimiento["Variacion %"] = (
+        (
+            crecimiento["Actual"]
+            -
+            crecimiento["Anterior"]
+        )
+        /
+        crecimiento["Anterior"]
+    ) * 100
+
+    crecimiento = crecimiento.sort_values(
+        "Variacion %",
+        ascending=False
+    ).head(10)
+
+    st.dataframe(
+        crecimiento,
         use_container_width=True
     )
