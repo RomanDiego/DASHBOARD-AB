@@ -1145,7 +1145,7 @@ if menu == "Inventario Inteligente":
         ),
         use_container_width=True
     )
-        st.markdown("---")
+st.markdown("---")
 
     st.subheader(
         "🚚 Ratio Transferencia / Venta"
