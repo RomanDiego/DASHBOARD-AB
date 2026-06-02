@@ -1262,7 +1262,7 @@ else:
             f"{ult_12m:,.0f}"
         )
 
-        st.markdown("---")
+    st.markdown("---")
 
     # =========================
     # VENTAS POR AÑO
@@ -1284,12 +1284,12 @@ else:
             "Cantidad"
         ]
 
-        st.dataframe(
+    st.dataframe(
             ventas_anuales,
             use_container_width=True
         )
 
-        fig = px.bar(
+    fig = px.bar(
             ventas_anuales,
             x="Año",
             y="Cantidad",
