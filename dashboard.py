@@ -53,7 +53,6 @@ menu = st.sidebar.radio(
         "ABC",
         "Producto",
         "Pronóstico",
-        "Dashboard Gerencial",
         "Planeamiento",
         "Top Ventas Mensual",
         "Inventario Inteligente",
@@ -561,84 +560,6 @@ if menu == "Pronóstico":
             use_container_width=True
         )
 
-# ==========================================
-# DASHBOARD GERENCIAL
-# ==========================================
-
-if menu == "Dashboard Gerencial":
-
-    st.title("📋 Dashboard Gerencial")
-
-    ventas = df[
-        df["NOMBRE DE TRANSACCION"]
-        == "SALIDA POR VENTAS"
-    ]["CANTIDAD VENDIDA"].sum()
-
-    transferencias = df[
-        df["NOMBRE DE TRANSACCION"]
-        == "SALIDA POR TRANSFERENCIA"
-    ]["CANTIDAD VENDIDA"].sum()
-
-    c1, c2 = st.columns(2)
-
-    c1.metric(
-        "Ventas",
-        f"{ventas:,.0f}"
-    )
-
-    c2.metric(
-        "Transferencias",
-        f"{transferencias:,.0f}"
-    )
-
-    comparativo = pd.DataFrame({
-        "Concepto": [
-            "Ventas",
-            "Transferencias"
-        ],
-        "Cantidad": [
-            ventas,
-            transferencias
-        ]
-    })
-
-    fig = px.bar(
-        comparativo,
-        x="Concepto",
-        y="Cantidad",
-        text="Cantidad"
-    )
-
-    st.plotly_chart(
-        fig,
-        use_container_width=True
-    )
-
-    st.subheader(
-        "Top 10 Productos Vendidos"
-    )
-
-    top_ventas = (
-        df[
-            df["NOMBRE DE TRANSACCION"]
-            == "SALIDA POR VENTAS"
-        ]
-        .groupby(
-            ["Código Artículo", "Artículo"]
-        )["CANTIDAD VENDIDA"]
-        .sum()
-        .reset_index()
-        .sort_values(
-            "CANTIDAD VENDIDA",
-            ascending=False
-        )
-        .head(10)
-    )
-
-    st.dataframe(
-        top_ventas,
-        use_container_width=True
-    )
 
 # ==========================================
 # PLANEAMIENTO
