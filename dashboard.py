@@ -54,6 +54,7 @@ menu = st.sidebar.radio(
         "Producto",
         "Pronóstico",
         "Dashboard Gerencial"
+        "Planeamiento"
     ]
 )
 
@@ -636,3 +637,173 @@ if menu == "Dashboard Gerencial":
         use_container_width=True
     )
 
+# ==========================================
+# PLANEAMIENTO
+# ==========================================
+
+if menu == "Planeamiento":
+
+    st.title("📊 Planeamiento de Demanda")
+
+    ventas = df[
+        df["NOMBRE DE TRANSACCION"]
+        == "SALIDA POR VENTAS"
+    ].copy()
+
+    ventas = ventas[
+        ventas["CLASIFICACION"].isin(["A", "B"])
+    ]
+        total_a = ventas[
+        ventas["CLASIFICACION"] == "A"
+    ]["CANTIDAD VENDIDA"].sum()
+
+    total_b = ventas[
+        ventas["CLASIFICACION"] == "B"
+    ]["CANTIDAD VENDIDA"].sum()
+
+    prod_a = ventas[
+        ventas["CLASIFICACION"] == "A"
+    ]["Código Artículo"].nunique()
+
+    prod_b = ventas[
+        ventas["CLASIFICACION"] == "B"
+    ]["Código Artículo"].nunique()
+
+    c1,c2,c3,c4 = st.columns(4)
+
+    c1.metric(
+        "Productos A",
+        prod_a
+    )
+
+    c2.metric(
+        "Productos B",
+        prod_b
+    )
+
+    c3.metric(
+        "Venta Clase A",
+        f"{total_a:,.0f}"
+    )
+
+    c4.metric(
+        "Venta Clase B",
+        f"{total_b:,.0f}"
+    )
+    comparativo = pd.DataFrame({
+        "Clasificacion": ["A","B"],
+        "Cantidad": [total_a,total_b]
+    })
+
+    fig = px.bar(
+        comparativo,
+        x="Clasificacion",
+        y="Cantidad",
+        text="Cantidad",
+        title="Participación A vs B"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+    st.subheader("🏆 Top 10 Productos Clase A")
+
+    top_a = (
+        ventas[
+            ventas["CLASIFICACION"] == "A"
+        ]
+        .groupby(
+            ["Código Artículo","Artículo"]
+        )["CANTIDAD VENDIDA"]
+        .sum()
+        .reset_index()
+        .sort_values(
+            "CANTIDAD VENDIDA",
+            ascending=False
+        )
+        .head(10)
+    )
+
+    st.dataframe(
+        top_a,
+        use_container_width=True
+    )
+    st.subheader("🥈 Top 10 Productos Clase B")
+
+    top_b = (
+        ventas[
+            ventas["CLASIFICACION"] == "B"
+        ]
+        .groupby(
+            ["Código Artículo","Artículo"]
+        )["CANTIDAD VENDIDA"]
+        .sum()
+        .reset_index()
+        .sort_values(
+            "CANTIDAD VENDIDA",
+            ascending=False
+        )
+        .head(10)
+    )
+
+    st.dataframe(
+        top_b,
+        use_container_width=True
+    )
+    st.subheader(
+        "📈 Tendencia por Producto"
+    )
+
+    clase = st.radio(
+        "Clasificación",
+        ["A","B"]
+    )
+    lista = (
+        ventas[
+            ventas["CLASIFICACION"] == clase
+        ]
+        ["Código Artículo"]
+        .astype(str)
+        .unique()
+    )
+
+    codigo = st.selectbox(
+        "Seleccione Código",
+        sorted(lista)
+    )
+    producto = ventas[
+        ventas["Código Artículo"]
+        .astype(str)
+        == codigo
+    ]
+    historico = (
+        producto.groupby(
+            producto["Fecha Salida"]
+            .dt.to_period("M")
+        )["CANTIDAD VENDIDA"]
+        .sum()
+        .reset_index()
+    )
+
+    historico["Fecha Salida"] = (
+        historico["Fecha Salida"]
+        .astype(str)
+    )
+    fig = px.line(
+        historico,
+        x="Fecha Salida",
+        y="CANTIDAD VENDIDA",
+        markers=True,
+        title=f"Tendencia Producto {codigo}"
+    )
+
+    fig.update_traces(
+        text=historico["CANTIDAD VENDIDA"],
+        textposition="top center"
+    )
+
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
