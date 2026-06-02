@@ -1153,8 +1153,7 @@ st.dataframe(
 # ==========================================
 # ROTACION DE PRODUCTOS (V7)
 # ==========================================
-
-elif menu == "Rotación de Productos":
+    elif menu == "Rotación de Productos":
 
     st.title("📈 Rotación de Productos")
 
