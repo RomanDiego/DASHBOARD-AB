@@ -1491,17 +1491,17 @@ else:
         st.subheader(
             "🚦 Estado de Rotación"
         )
-    if promedio_mensual >= 100:
+if promedio_mensual >= 100:
             st.success(
                 "🟢 Alta Rotación"
             )
 
-    elif promedio_mensual >= 20:
+elif promedio_mensual >= 20:
             st.warning(
                 "🟡 Rotación Media"
             )
 
-    else:
+else:
             st.error(
                 "🔴 Baja Rotación"
             )
