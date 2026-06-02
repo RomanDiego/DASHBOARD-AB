@@ -1189,7 +1189,7 @@ if menu == "Rotación de Productos":
         == "SALIDA POR VENTAS"
     ]
 
-if len(producto) == 0:
+    if len(producto) == 0:
 
         st.warning(
             "No existen ventas para este producto."
