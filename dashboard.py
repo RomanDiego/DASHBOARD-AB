@@ -55,7 +55,8 @@ menu = st.sidebar.radio(
         "Pronóstico",
         "Dashboard Gerencial",
         "Planeamiento",
-        "Top Ventas Mensual"
+        "Top Ventas Mensual",
+        "Inventario Inteligente"
     ]
 )
 
@@ -1066,5 +1067,163 @@ if menu == "Top Ventas Mensual":
 
     st.dataframe(
         crecimiento,
+        use_container_width=True
+    )
+# ==========================================
+# INVENTARIO INTELIGENTE
+# ==========================================
+
+if menu == "Inventario Inteligente":
+
+    st.title("📦 Inventario Inteligente")
+
+    dias = st.selectbox(
+        "Seleccione período sin movimiento",
+        [90, 180, 365]
+    )
+
+    ventas = df[
+        df["NOMBRE DE TRANSACCION"]
+        == "SALIDA POR VENTAS"
+    ].copy()
+
+    ultima_fecha = ventas["Fecha Salida"].max()
+
+    ultimo_movimiento = (
+        ventas
+        .groupby(
+            ["Código Artículo", "Artículo", "CLASIFICACION"]
+        )["Fecha Salida"]
+        .max()
+        .reset_index()
+    )
+
+    ultimo_movimiento["Dias Sin Movimiento"] = (
+        ultima_fecha -
+        ultimo_movimiento["Fecha Salida"]
+    ).dt.days
+
+    sin_movimiento = ultimo_movimiento[
+        ultimo_movimiento["Dias Sin Movimiento"] >= dias
+    ]
+
+    # KPI
+
+    c1, c2, c3 = st.columns(3)
+
+    c1.metric(
+        "Productos Sin Movimiento",
+        len(sin_movimiento)
+    )
+
+    c2.metric(
+        "Productos Clase A",
+        len(
+            sin_movimiento[
+                sin_movimiento["CLASIFICACION"] == "A"
+            ]
+        )
+    )
+
+    c3.metric(
+        "Productos Clase B",
+        len(
+            sin_movimiento[
+                sin_movimiento["CLASIFICACION"] == "B"
+            ]
+        )
+    )
+
+    st.subheader(
+        f"Productos sin movimiento por más de {dias} días"
+    )
+
+    st.dataframe(
+        sin_movimiento.sort_values(
+            "Dias Sin Movimiento",
+            ascending=False
+        ),
+        use_container_width=True
+    )
+        st.markdown("---")
+
+    st.subheader(
+        "🚚 Ratio Transferencia / Venta"
+    )
+
+    ventas_tot = (
+        df[
+            df["NOMBRE DE TRANSACCION"]
+            == "SALIDA POR VENTAS"
+        ]
+        .groupby("Código Artículo")
+        ["CANTIDAD VENDIDA"]
+        .sum()
+        .reset_index()
+        .rename(
+            columns={
+                "CANTIDAD VENDIDA":"Ventas"
+            }
+        )
+    )
+
+    transf_tot = (
+        df[
+            df["NOMBRE DE TRANSACCION"]
+            == "SALIDA POR TRANSFERENCIA"
+        ]
+        .groupby("Código Artículo")
+        ["CANTIDAD VENDIDA"]
+        .sum()
+        .reset_index()
+        .rename(
+            columns={
+                "CANTIDAD VENDIDA":"Transferencias"
+            }
+        )
+    )
+
+    ratio = pd.merge(
+        ventas_tot,
+        transf_tot,
+        on="Código Artículo",
+        how="inner"
+    )
+
+    ratio = ratio[
+        ratio["Ventas"] > 0
+    ]
+
+    ratio["Ratio %"] = (
+        ratio["Transferencias"]
+        /
+        ratio["Ventas"]
+    ) * 100
+
+    ratio = ratio.sort_values(
+        "Ratio %",
+        ascending=False
+    )
+
+    st.dataframe(
+        ratio.head(20),
+        use_container_width=True
+    )
+    st.markdown("---")
+
+    st.subheader(
+        "⚠ Alertas Logísticas"
+    )
+
+    alertas = ratio[
+        ratio["Ratio %"] > 80
+    ]
+
+    st.write(
+        f"Productos con ratio mayor a 80%: {len(alertas)}"
+    )
+
+    st.dataframe(
+        alertas.head(20),
         use_container_width=True
     )
