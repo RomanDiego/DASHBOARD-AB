@@ -1147,11 +1147,11 @@ if menu == "Inventario Inteligente":
     )
 st.markdown("---")
 
-    st.subheader(
+st.subheader(
         "🚚 Ratio Transferencia / Venta"
     )
 
-    ventas_tot = (
+ventas_tot = (
         df[
             df["NOMBRE DE TRANSACCION"]
             == "SALIDA POR VENTAS"
@@ -1167,7 +1167,7 @@ st.markdown("---")
         )
     )
 
-    transf_tot = (
+transf_tot = (
         df[
             df["NOMBRE DE TRANSACCION"]
             == "SALIDA POR TRANSFERENCIA"
@@ -1183,47 +1183,47 @@ st.markdown("---")
         )
     )
 
-    ratio = pd.merge(
+ratio = pd.merge(
         ventas_tot,
         transf_tot,
         on="Código Artículo",
         how="inner"
     )
 
-    ratio = ratio[
+ratio = ratio[
         ratio["Ventas"] > 0
     ]
 
-    ratio["Ratio %"] = (
+ratio["Ratio %"] = (
         ratio["Transferencias"]
         /
         ratio["Ventas"]
     ) * 100
 
-    ratio = ratio.sort_values(
+ratio = ratio.sort_values(
         "Ratio %",
         ascending=False
     )
 
-    st.dataframe(
+st.dataframe(
         ratio.head(20),
         use_container_width=True
     )
-    st.markdown("---")
+st.markdown("---")
 
-    st.subheader(
+st.subheader(
         "⚠ Alertas Logísticas"
     )
 
-    alertas = ratio[
+alertas = ratio[
         ratio["Ratio %"] > 80
     ]
 
-    st.write(
+st.write(
         f"Productos con ratio mayor a 80%: {len(alertas)}"
     )
 
-    st.dataframe(
+st.dataframe(
         alertas.head(20),
         use_container_width=True
     )
