@@ -1407,9 +1407,9 @@ else:
         # SEMAFORO
         # =========================
 
-        st.markdown("---")
+    st.markdown("---")
 
-        st.subheader(
+    st.subheader(
             "🚦 Estado de Rotación"
         )
 if promedio_mensual >= 100:
